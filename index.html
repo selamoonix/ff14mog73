@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FF14 莫古莫古★大收集 ～奇譚探究者～ (7.3) 稀少神典石計算機</title>
+  <!-- 引入 Google Fonts: Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. 設計變數與主題配色 (莫古利幻夢紫 + 頭頂絨球粉紅 + 奇譚神典石亞拉戈青綠)
+       ========================================================================== */
+    :root {
+      /* 淺色模式預設值 (清爽淡紫羅蘭微光背景) */
+      --bg-primary: #f6f4fb;
+      --bg-secondary: #ffffff;
+      --bg-elevated: #ede8f7;
+      --bg-sticky: rgba(246, 244, 251, 0.88);
+      --bg-selected: #eefcf9;
+      
+      --text-primary: #1f192e;
+      --text-secondary: #5a5072;
+      --text-muted: #887da3;
+
+      /* 主題品牌色 */
+      --mog-purple: #6b4c9a;
+      --mog-purple-light: #8b6bc5;
+      --mog-purple-soft: rgba(107, 76, 154, 0.12);
+      
+      --pom-pink: #ff3b72;
+      --pom-pink-hover: #e6255c;
+      --pom-pink-soft: rgba(255, 59, 114, 0.12);
+
+      --tome-teal: #0b9e85;
+      --tome-teal-bright: #00d4b2;
+      --tome-teal-soft: rgba(11, 158, 133, 0.13);
+
+      --warn-amber: #d97706;
+      --warn-amber-soft: rgba(217, 119, 6, 0.12);
+
+      /* 邊框與陰影 */
+      --border-color: #dcd4ec;
+      --border-selected: #00c4a4;
+      --shadow-sm: 0 2px 8px rgba(45, 28, 79, 0.06);
+      --shadow-md: 0 6px 18px rgba(45, 28, 79, 0.1);
+      --shadow-selected: 0 0 0 2px var(--border-selected), 0 6px 16px rgba(0, 196, 164, 0.18);
+      --focus-ring: 0 0 0 3px rgba(0, 212, 178, 0.45);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --font-sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* 系統深色模式自動適配 */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-primary: #12101b;
+        --bg-secondary: #1d192b;
+        --bg-elevated: #28233b;
+        --bg-sticky: rgba(18, 16, 27, 0.88);
+        --bg-selected: #16292b;
+
+        --text-primary: #f3f0fa;
+        --text-secondary: #b7aed0;
+        --text-muted: #7f749c;
+
+        --mog-purple: #9d7ce8;
+        --mog-purple-light: #b69cf4;
+        --mog-purple-soft: rgba(157, 124, 232, 0.18);
+
+        --pom-pink: #ff5c8a;
+        --pom-pink-hover: #ff7aa0;
+        --pom-pink-soft: rgba(255, 92, 138, 0.18);
+
+        --tome-teal: #00d4b2;
+        --tome-teal-bright: #26f0cf;
+        --tome-teal-soft: rgba(0, 212, 178, 0.16);
+
+        --warn-amber: #fbbf24;
+        --warn-amber-soft: rgba(251, 191, 36, 0.15);
+
+        --border-color: #322b4a;
+        --border-selected: #00d4b2;
+        --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+        --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+        --shadow-selected: 0 0 0 2px var(--border-selected), 0 6px 20px rgba(0, 212, 178, 0.22);
+      }
+    }
+
+    /* 手動強制深色模式 */
+    :root[data-theme="dark"] {
+      --bg-primary: #12101b;
+      --bg-secondary: #1d192b;
+      --bg-elevated: #28233b;
+      --bg-sticky: rgba(18, 16, 27, 0.88);
+      --bg-selected: #16292b;
+
+      --text-primary: #f3f0fa;
+      --text-secondary: #b7aed0;
+      --text-muted: #7f749c;
+
+      --mog-purple: #9d7ce8;
+      --mog-purple-light: #b69cf4;
+      --mog-purple-soft: rgba(157, 124, 232, 0.18);
+
+      --pom-pink: #ff5c8a;
+      --pom-pink-hover: #ff7aa0;
+      --pom-pink-soft: rgba(255, 92, 138, 0.18);
+
+      --tome-teal: #00d4b2;
+      --tome-teal-bright: #26f0cf;
+      --tome-teal-soft: rgba(0, 212, 178, 0.16);
+
+      --warn-amber: #fbbf24;
+      --warn-amber-soft: rgba(251, 191, 36, 0.15);
+
+      --border-color: #322b4a;
+      --border-selected: #00d4b2;
+      --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+      --shadow-selected: 0 0 0 2px var(--border-selected), 0 6px 20px rgba(0, 212, 178, 0.22);
+    }
+
+    /* ==========================================================================
+       2. 基礎重設與無障礙焦點樣式
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 確保鍵盤導覽焦點清晰可見 */
+    button:focus-visible,
+    input:focus-visible,
+    a:focus-visible,
+    [tabindex]:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: inherit;
+    }
+
+    /* ==========================================================================
+       3. 頂部固定資訊列 (Sticky Header)
+       ========================================================================== */
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-sticky);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      padding: 0.65rem 1rem;
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    /* 頂部第一排：標題與週二刷新倒數 */
+    .header-top-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .mog-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 4px rgba(255, 59, 114, 0.35));
+    }
+
+    .version-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--mog-purple), var(--pom-pink));
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .header-right-tools {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+
+    /* 每週任務刷新倒數膠囊 */
+    .countdown-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .countdown-pill strong {
+      color: var(--pom-pink);
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+    }
+
+    .theme-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    .theme-btn:hover {
+      background-color: var(--mog-purple-soft);
+      color: var(--mog-purple);
+    }
+
+    /* 頂部第二排：神典石統計儀表板 (3 欄) */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .stat-box {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.65rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      white-space: nowrap;
+    }
+
+    .stat-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.3rem;
+      margin-top: 0.1rem;
+    }
+
+    .stat-num {
+      font-size: 1.25rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+
+    .stat-box.total-box .stat-num {
+      color: var(--tome-teal);
+    }
+
+    /* 目前持有輸入框 */
+    .owned-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.1rem;
+    }
+
+    .owned-input {
+      width: 100%;
+      max-width: 110px;
+      font-family: inherit;
+      font-size: 1.15rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.1rem 0.45rem;
+      transition: border-color 0.15s ease;
+    }
+
+    .owned-input:focus {
+      border-color: var(--tome-teal);
+    }
+
+    /* 還差 / 多出 狀態樣式 */
+    .stat-box.diff-box.is-short .stat-num {
+      color: var(--pom-pink);
+    }
+
+    .stat-box.diff-box.is-surplus {
+      background-color: var(--bg-selected);
+      border-color: var(--border-selected);
+    }
+
+    .stat-box.diff-box.is-surplus .stat-label {
+      color: var(--tome-teal);
+    }
+
+    .stat-box.diff-box.is-surplus .stat-num {
+      color: var(--tome-teal);
+    }
+
+    /* ==========================================================================
+       4. 主內容區：分頁篩選與工具按鈕
+       ========================================================================== */
+    .main-container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem 1rem 2.5rem;
+      flex: 1;
+    }
+
+    .controls-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.1rem;
+    }
+
+    /* 分頁 Tabs */
+    .tabs-bar {
+      display: flex;
+      gap: 0.45rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+      scrollbar-width: thin;
+    }
+
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      white-space: nowrap;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      transition: all 0.18s ease;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--mog-purple-light);
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--mog-purple), #8358bf);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 3px 10px rgba(107, 76, 154, 0.35);
+    }
+
+    .tab-btn[data-tab="fav"].active {
+      background: linear-gradient(135deg, var(--pom-pink), #ff6392);
+      box-shadow: 0 3px 10px rgba(255, 59, 114, 0.35);
+    }
+
+    .tab-count {
+      font-size: 0.72rem;
+      padding: 0.05rem 0.42rem;
+      border-radius: 999px;
+      background-color: var(--bg-elevated);
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tab-btn.active .tab-count {
+      background-color: rgba(255, 255, 255, 0.24);
+      color: #ffffff;
+    }
+
+    /* 工具列：搜尋 / 只看已選 / 切換檢視 / 重置數量 */
+    .toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .search-input {
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 0.45rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      min-width: 170px;
+      flex: 1;
+      max-width: 260px;
+    }
+
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 700;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      transition: all 0.15s ease;
+    }
+
+    .tool-btn:hover {
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .tool-btn.active-filter {
+      background-color: var(--tome-teal-soft);
+      border-color: var(--tome-teal);
+      color: var(--tome-teal);
+    }
+
+    .tool-btn.reset-btn:hover {
+      background-color: var(--pom-pink-soft);
+      border-color: var(--pom-pink);
+      color: var(--pom-pink);
+    }
+
+    /* ==========================================================================
+       5. 道具卡片網格 (Grid Mode) 與 精簡列表 (List Mode)
+       ========================================================================== */
+    .rewards-container.grid-mode {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .rewards-container.list-mode {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    /* 道具卡片基本樣式 */
+    .item-card {
+      position: relative;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
+      user-select: none;
+    }
+
+    .item-card:hover {
+      border-color: var(--mog-purple-light);
+    }
+
+    /* 數量 >= 1 的明顯「已選」樣式 */
+    .item-card.is-selected {
+      background-color: var(--bg-selected);
+      border-color: var(--border-selected);
+      box-shadow: var(--shadow-selected);
+    }
+
+    /* 已選角標 */
+    .selected-ribbon {
+      display: none;
+      position: absolute;
+      top: -1px;
+      right: 42px;
+      background: linear-gradient(135deg, var(--tome-teal), var(--tome-teal-bright));
+      color: #08221e;
+      font-size: 0.68rem;
+      font-weight: 900;
+      padding: 0.12rem 0.5rem;
+      border-radius: 0 0 6px 6px;
+      letter-spacing: 0.03em;
+    }
+
+    .item-card.is-selected .selected-ribbon {
+      display: inline-block;
+    }
+
+    /* 卡片上半部：圖示 + 標題資訊 + 最愛按鈕 */
+    .card-main {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    /* 預留道具圖示框 (52x52) */
+    .item-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #ffffff;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+
+    /* 依分類區分預設色塊 */
+    .item-thumb[data-cat="m"] {
+      background: linear-gradient(135deg, #7c4dff, #ff4081);
+    }
+    .item-thumb[data-cat="a"] {
+      background: linear-gradient(135deg, #00b4db, #0083b0);
+    }
+    .item-thumb[data-cat="o"] {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .item-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-meta-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0.2rem;
+    }
+
+    /* 神典石數量徽章 */
+    .cost-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.78rem;
+      font-weight: 900;
+      padding: 0.1rem 0.48rem;
+      border-radius: 6px;
+      background-color: var(--tome-teal-soft);
+      color: var(--tome-teal);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cat-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.08rem 0.4rem;
+      border-radius: 5px;
+      background-color: var(--bg-elevated);
+      color: var(--text-secondary);
+    }
+
+    .note-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.08rem 0.45rem;
+      border-radius: 5px;
+      background-color: var(--warn-amber-soft);
+      color: var(--warn-amber);
+      border: 1px dashed var(--warn-amber);
+    }
+
+    .item-name {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    /* ☆/★ 最愛追蹤按鈕 */
+    .fav-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      background-color: transparent;
+      transition: transform 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .fav-btn:hover {
+      background-color: var(--pom-pink-soft);
+      color: var(--pom-pink);
+      transform: scale(1.1);
+    }
+
+    .fav-btn.is-fav {
+      color: var(--pom-pink);
+      text-shadow: 0 0 8px rgba(255, 59, 114, 0.4);
+    }
+
+    /* 卡片下半部：小計與數量增減控制 */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.5rem;
+      border-top: 1px dashed var(--border-color);
+      gap: 0.5rem;
+    }
+
+    .subtotal-text {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .item-card.is-selected .subtotal-text {
+      color: var(--tome-teal);
+    }
+
+    .qty-controls {
+      display: inline-flex;
+      align-items: center;
+      background-color: var(--bg-elevated);
+      border-radius: 999px;
+      padding: 0.15rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .item-card.is-selected .qty-controls {
+      border-color: var(--border-selected);
+    }
+
+    .qty-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--text-primary);
+      background-color: var(--bg-secondary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: background-color 0.12s ease, transform 0.1s ease;
+    }
+
+    .qty-btn:hover:not(:disabled) {
+      background-color: var(--mog-purple);
+      color: #ffffff;
+    }
+
+    .qty-btn:active:not(:disabled) {
+      transform: scale(0.92);
+    }
+
+    .qty-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .qty-display {
+      min-width: 34px;
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+      padding: 0 0.25rem;
+    }
+
+    /* ==========================================================================
+       6. 精簡列表模式 (Compact List Mode) 專屬排版覆寫
+       ========================================================================== */
+    .rewards-container.list-mode .item-card {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      gap: 0.6rem;
+    }
+
+    .rewards-container.list-mode .selected-ribbon {
+      display: none;
+    }
+
+    .rewards-container.list-mode .card-main {
+      flex: 1;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .rewards-container.list-mode .item-thumb {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    .rewards-container.list-mode .item-info {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .rewards-container.list-mode .item-meta-row {
+      margin-bottom: 0;
+      order: 2;
+    }
+
+    .rewards-container.list-mode .item-name {
+      font-size: 0.9rem;
+      order: 1;
+    }
+
+    .rewards-container.list-mode .card-footer {
+      border-top: none;
+      padding-top: 0;
+      flex-shrink: 0;
+    }
+
+    /* 空狀態提示 */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem 1rem;
+      background-color: var(--bg-secondary);
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+    }
+
+    .empty-state p {
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
+    }
+
+    /* ==========================================================================
+       7. 兌換條件註記說明區 & 頁尾聲明
+       ========================================================================== */
+    .notes-panel {
+      margin-top: 2rem;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.2rem;
+    }
+
+    .notes-panel h2 {
+      font-size: 0.92rem;
+      font-weight: 900;
+      color: var(--mog-purple);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .notes-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.35rem 1rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .notes-list strong {
+      color: var(--warn-amber);
+      margin-right: 0.3rem;
+    }
+
+    /* 內建確認對話框 (取代原生 confirm 以確保在任何環境皆可正常互動) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background-color: rgba(10, 8, 18, 0.65);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+
+    .modal-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-dialog {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      max-width: 380px;
+      width: 100%;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-md);
+      transform: translateY(8px);
+      transition: transform 0.18s ease;
+    }
+
+    .modal-backdrop.is-open .modal-dialog {
+      transform: translateY(0);
+    }
+
+    .modal-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .modal-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .modal-btn {
+      padding: 0.45rem 0.95rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .modal-btn.cancel {
+      background-color: var(--bg-elevated);
+      color: var(--text-secondary);
+    }
+
+    .modal-btn.confirm {
+      background-color: var(--pom-pink);
+      color: #ffffff;
+    }
+
+    .site-footer {
+      border-top: 1px solid var(--border-color);
+      background-color: var(--bg-secondary);
+      padding: 1.25rem 1rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       8. 手機版響應式微調
+       ========================================================================== */
+    @media (max-width: 640px) {
+      .sticky-header {
+        padding: 0.5rem 0.75rem;
+      }
+      .brand-title {
+        font-size: 0.92rem;
+      }
+      .stat-num {
+        font-size: 1.05rem;
+      }
+      .owned-input {
+        font-size: 1rem;
+        max-width: 85px;
+      }
+      .rewards-container.grid-mode {
+        grid-template-columns: 1fr;
+      }
+      .rewards-container.list-mode .subtotal-text {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== 頂部固定資訊列 (Sticky Header) ==================== -->
+  <header class="sticky-header">
+    <div class="header-container">
+      <div class="header-top-row">
+        <div class="brand-title">
+          <!-- 莫古利絨球與翅膀純內嵌 SVG -->
+          <svg class="mog-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <!-- 蝙蝠小翅膀 -->
+            <path d="M14 34C6 28 2 32 4 40C6 44 12 43 16 41" fill="#8b6bc5"/>
+            <path d="M50 34C58 28 62 32 60 40C58 44 52 43 48 41" fill="#8b6bc5"/>
+            <!-- 天線與紅絨球 (Pom-pom) -->
+            <path d="M32 24V14" stroke="#6b4c9a" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="32" cy="10" r="7" fill="#ff3b72"/>
+            <!-- 莫古利臉龐 -->
+            <ellipse cx="32" cy="38" rx="18" ry="15" fill="#ffffff" stroke="#6b4c9a" stroke-width="3"/>
+            <!-- 小耳朵 -->
+            <path d="M18 28L14 19L24 24Z" fill="#ffffff" stroke="#6b4c9a" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M46 28L50 19L40 24Z" fill="#ffffff" stroke="#6b4c9a" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- 瞇瞇眼與紅鼻子 -->
+            <path d="M23 36C25 34 27 34 28 36" stroke="#6b4c9a" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M36 36C37 34 39 34 41 36" stroke="#6b4c9a" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="32" cy="39" rx="3.5" ry="2.5" fill="#ff3b72"/>
+          </svg>
+          <span>莫古莫古★大收集 ～奇譚探究者～</span>
+          <span class="version-badge">7.3 繁中</span>
+        </div>
+
+        <div class="header-right-tools">
+          <div class="countdown-pill" title="每週二 16:00 (台灣時間 / UTC+8) 刷新週常挑戰任務">
+            <span>⏳ 週任刷新：</span>
+            <strong id="weekly-countdown">計算中...</strong>
+          </div>
+          <button type="button" id="theme-toggle-btn" class="theme-btn" aria-label="切換深淺色主題" title="切換深色/淺色模式">
+            🌓
+          </button>
+        </div>
+      </div>
+
+      <!-- 神典石統計列 -->
+      <div class="stats-bar">
+        <!-- 1. 總需神典石 -->
+        <div class="stat-box total-box">
+          <div class="stat-label">
+            <!-- 奇譚神典石圖示 -->
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="currentColor" opacity="0.2"/>
+              <polygon points="12,2 21,7 21,17 12,22 3,17 3,7" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="12" r="4" fill="currentColor"/>
+            </svg>
+            <span>總需神典石</span>
+          </div>
+          <div class="stat-value-row">
+            <span id="total-needed" class="stat-num">0</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);" id="selected-types-count">(0 項)</span>
+          </div>
+        </div>
+
+        <!-- 2. 目前持有 -->
+        <div class="stat-box owned-box">
+          <label for="owned-input" class="stat-label">🎒 目前持有</label>
+          <div class="owned-input-wrap">
+            <input
+              type="number"
+              id="owned-input"
+              class="owned-input"
+              min="0"
+              max="99999"
+              step="1"
+              value="0"
+              inputmode="numeric"
+              aria-label="目前持有的稀少神典石數量"
+            >
+          </div>
+        </div>
+
+        <!-- 3. 還差 / 多出 -->
+        <div id="diff-box" class="stat-box diff-box is-short">
+          <div id="diff-label" class="stat-label">🔥 還差神典石</div>
+          <div class="stat-value-row">
+            <span id="diff-value" class="stat-num">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== 主內容與篩選控制區 ==================== -->
+  <main class="main-container">
+    <section class="controls-section" aria-label="分類篩選與檢視控制">
+      <!-- 分頁篩選按鈕 -->
+      <div class="tabs-bar" role="tablist">
+        <button type="button" class="tab-btn active" data-tab="all" role="tab" aria-selected="true">
+          <span>全部道具</span>
+          <span class="tab-count" id="count-all">0</span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="fav" role="tab" aria-selected="false">
+          <span>★ 最愛追蹤</span>
+          <span class="tab-count" id="count-fav">0</span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="m" role="tab" aria-selected="false">
+          <span>坐騎・飾品</span>
+          <span class="tab-count" id="count-m">0</span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="a" role="tab" aria-selected="false">
+          <span>外觀・動作・家具</span>
+          <span class="tab-count" id="count-a">0</span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="o" role="tab" aria-selected="false">
+          <span>幻卡・地圖・其他</span>
+          <span class="tab-count" id="count-o">0</span>
+        </button>
+      </div>
+
+      <!-- 工具列 -->
+      <div class="toolbar-row">
+        <div class="filter-group">
+          <input
+            type="search"
+            id="search-input"
+            class="search-input"
+            placeholder="🔍 搜尋道具名稱或備註..."
+            aria-label="搜尋道具名稱或備註"
+          >
+          <button type="button" id="only-selected-btn" class="tool-btn" aria-pressed="false">
+            <span>☑️ 只看已選</span>
+          </button>
+        </div>
+
+        <div class="action-group">
+          <button type="button" id="view-mode-btn" class="tool-btn" aria-label="切換顯示模式">
+            <span id="view-mode-icon">📋</span>
+            <span id="view-mode-text">切換精簡列表</span>
+          </button>
+          <button type="button" id="reset-qty-btn" class="tool-btn reset-btn">
+            <span>🗑️ 重置數量</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 道具卡片容器 -->
+    <section id="rewards-list" class="rewards-container grid-mode" aria-live="polite"></section>
+
+    <!-- 兌換條件註記說明區 -->
+    <aside class="notes-panel" aria-label="官方兌換條件註記說明">
+      <h2>📌 兌換條件註記說明（可於 JS 開頭 NOTES_MAP 補充）</h2>
+      <ul id="notes-list" class="notes-list"></ul>
+    </aside>
+  </main>
+
+  <!-- ==================== 重置數量確認對話框 ==================== -->
+  <div id="confirm-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+    <div class="modal-dialog">
+      <h3 id="modal-title" class="modal-title">確定要重置所有兌換數量嗎？</h3>
+      <p class="modal-desc">這會將所有道具的已選數量歸零，但您的「★ 最愛追蹤」標記與「目前持有神典石」將會保留下來。</p>
+      <div class="modal-actions">
+        <button type="button" id="modal-cancel-btn" class="modal-btn cancel">取消</button>
+        <button type="button" id="modal-confirm-btn" class="modal-btn confirm">確定歸零</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 頁尾版權聲明 ==================== -->
+  <footer class="site-footer">
+    <p>本頁面為非官方個人整理工具，未獲 Square Enix 官方授權或認可。</p>
+    <p>FINAL FANTASY XIV © SQUARE ENIX CO., LTD. All Rights Reserved.</p>
+  </footer>
+
+  <!-- ==================== JavaScript 邏輯與道具資料庫 ==================== -->
+  <script>
+    /**
+     * ============================================================================
+     * 【1. 道具資料庫 REWARDS_DATA】
+     * 之後若要新增/修改道具名稱、神典石數量、分類、備註或補上圖片路徑，只要改這個陣列即可！
+     * 
+     * 欄位說明：
+     * - id   : 唯一識別碼（用於儲存 localStorage 紀錄，請保持唯一）
+     * - name : 道具顯示名稱
+     * - cost : 所需稀少神典石數量
+     * - cat  : 分類代碼 ('m' = 坐騎・飾品, 'a' = 外觀・動作・家具, 'o' = 幻卡・地圖・其他)
+     * - note : 備註文字或條件代碼（如 '※1'～'※6'，無備註可填 ''）
+     * - img  : 圖片網址或相對路徑（如 'images/coffee-earring.png'，留空 '' 時自動顯示首字色塊）
+     * ============================================================================
+     */
+    const REWARDS_DATA = [
+      // --- 100 顆神典石 ---
+      { id: "item-01", name: "咖啡杯耳墜", cost: 100, cat: "m", note: "", img: "" },
+      { id: "item-02", name: "管弦樂琴樂譜：忘卻的此岸", cost: 100, cat: "o", note: "", img: "" },
+
+      // --- 50 顆神典石 ---
+      { id: "item-03", name: "惡魔磚塊耳墜", cost: 50, cat: "m", note: "", img: "" },
+      { id: "item-04", name: "紅寶石玲龍魔笛", cost: 50, cat: "m", note: "", img: "" },
+      { id: "item-05", name: "青蛙號M啟動鑰匙", cost: 50, cat: "m", note: "", img: "" },
+      { id: "item-06", name: "髮型樣式：基拉巴尼亞編髮", cost: 50, cat: "a", note: "", img: "" },
+      { id: "item-07", name: "幻影亡靈法師", cost: 50, cat: "m", note: "", img: "" },
+
+      // --- 30 顆神典石 ---
+      { id: "item-08", name: "機工士裝甲", cost: 30, cat: "a", note: "", img: "" },
+      { id: "item-09", name: "演技教材・振作精神", cost: 30, cat: "a", note: "", img: "" },
+      { id: "item-10", name: "田園圓點陽傘", cost: 30, cat: "a", note: "", img: "" },
+      { id: "item-11", name: "金碟幣白金卡", cost: 30, cat: "o", note: "", img: "" },
+      { id: "item-12", name: "火蛟角笛", cost: 30, cat: "m", note: "", img: "" },
+      { id: "item-13", name: "恐狼角笛", cost: 30, cat: "m", note: "", img: "" },
+      { id: "item-14", name: "狂歡神威魔笛", cost: 30, cat: "m", note: "", img: "" },
+      { id: "item-15", name: "極樂神威魔笛", cost: 30, cat: "m", note: "", img: "" },
+
+      // --- 20 顆神典石 ---
+      { id: "item-16", name: "木製垃圾桶", cost: 20, cat: "a", note: "", img: "" },
+      { id: "item-17", name: "伊爾美格花園噴泉", cost: 20, cat: "a", note: "", img: "" },
+      { id: "item-18", name: "鞦韆椅", cost: 20, cat: "a", note: "", img: "" },
+      { id: "item-19", name: "胡桃木立架花瓶", cost: 20, cat: "a", note: "", img: "" },
+      { id: "item-20", name: "庭院智蛙擺飾", cost: 20, cat: "a", note: "", img: "" },
+
+      // --- 15 顆神典石 ---
+      { id: "item-21", name: "地靈娃娃", cost: 15, cat: "m", note: "", img: "" },
+      { id: "item-22", name: "伊修加爾德新型禦敵上衣", cost: 15, cat: "a", note: "", img: "" },
+      { id: "item-23", name: "伊修加爾德新型禦敵下身", cost: 15, cat: "a", note: "", img: "" },
+      { id: "item-24", name: "伊修加爾德新型制敵上衣", cost: 15, cat: "a", note: "", img: "" },
+      { id: "item-25", name: "伊修加爾德新型制敵下身", cost: 15, cat: "a", note: "", img: "" },
+      { id: "item-26", name: "伊修加爾德新型強襲上衣", cost: 15, cat: "a", note: "", img: "" },
+      { id: "item-27", name: "伊修加爾德新型強襲下身", cost: 15, cat: "a", note: "", img: "" },
+      { id: "item-28", name: "伊修加爾德新型偵察上衣", cost: 15, cat: "a", note: "待補核對", img: "" },
+      { id: "item-29", name: "伊修加爾德新型偵察下身", cost: 15, cat: "a", note: "待補核對", img: "" },
+      { id: "item-30", name: "伊修加爾德新型遊擊上衣", cost: 15, cat: "a", note: "待補核對", img: "" },
+      { id: "item-31", name: "伊修加爾德新型遊擊下身", cost: 15, cat: "a", note: "待補核對", img: "" },
+      { id: "item-32", name: "伊修加爾德新型詠咒上衣", cost: 15, cat: "a", note: "待補核對", img: "" },
+      { id: "item-33", name: "伊修加爾德新型詠咒下身", cost: 15, cat: "a", note: "待補核對", img: "" },
+      { id: "item-34", name: "伊修加爾德新型治癒上衣", cost: 15, cat: "a", note: "待補核對", img: "" },
+      { id: "item-35", name: "伊修加爾德新型治癒下身", cost: 15, cat: "a", note: "待補核對", img: "" },
+      { id: "item-36", name: "月火男式上衣", cost: 15, cat: "a", note: "待補核對", img: "" },
+      { id: "item-37", name: "月火男式短褲", cost: 15, cat: "a", note: "", img: "" },
+      { id: "item-38", name: "月火女式夏衣", cost: 15, cat: "a", note: "", img: "" },
+      { id: "item-39", name: "月火女式夏褲", cost: 15, cat: "a", note: "", img: "" },
+      { id: "item-40", name: "陳舊的地圖S1", cost: 15, cat: "o", note: "", img: "" },
+      { id: "item-41", name: "陳舊的地圖S2", cost: 15, cat: "o", note: "", img: "" },
+      { id: "item-42", name: "陳舊的地圖S3", cost: 15, cat: "o", note: "", img: "" },
+      { id: "item-43", name: "陳舊的地圖S4", cost: 15, cat: "o", note: "", img: "" },
+
+      // --- 10 顆神典石 ---
+      { id: "item-44", name: "西薩納蘭詳細地圖", cost: 10, cat: "o", note: "※1", img: "" },
+      { id: "item-45", name: "中薩納蘭詳細地圖", cost: 10, cat: "o", note: "※1", img: "" },
+      { id: "item-46", name: "東薩納蘭詳細地圖", cost: 10, cat: "o", note: "※1", img: "" },
+      { id: "item-47", name: "南薩納蘭詳細地圖", cost: 10, cat: "o", note: "※1", img: "" },
+      { id: "item-48", name: "北薩納蘭詳細地圖", cost: 10, cat: "o", note: "※1", img: "" },
+      { id: "item-49", name: "九宮幻卡：羅羅力特・納納力特", cost: 10, cat: "o", note: "※2", img: "" },
+      { id: "item-50", name: "九宮幻卡：吉布里隆", cost: 10, cat: "o", note: "※3", img: "" },
+
+      // --- 7 顆神典石 ---
+      { id: "item-51", name: "九宮幻卡：不明物體", cost: 7, cat: "o", note: "※4", img: "" },
+      { id: "item-52", name: "九宮幻卡：瓦厲斯・耶・加爾烏斯", cost: 7, cat: "o", note: "※5", img: "" },
+      { id: "item-53", name: "九宮幻卡：2B", cost: 7, cat: "o", note: "※6", img: "" },
+      { id: "item-54", name: "虎斑次郎", cost: 7, cat: "m", note: "", img: "" },
+      { id: "item-55", name: "管弦樂琴樂譜：走向世界", cost: 7, cat: "o", note: "", img: "" },
+
+      // --- 1 顆神典石 ---
+      { id: "item-56", name: "巧兒鳥耳墜", cost: 1, cat: "m", note: "", img: "" },
+      { id: "item-57", name: "道士莫古利娃娃", cost: 1, cat: "m", note: "", img: "" },
+      { id: "item-58", name: "魔法棱晶（職業大師）×10", cost: 1, cat: "o", note: "", img: "" }
+    ];
+
+    /**
+     * 【2. 兌換條件註記說明 NOTES_MAP】
+     * 之後補上官網 ※1～※6 的具體前置任務條件時，只需修改這裡的文字：
+     */
+    const NOTES_MAP = {
+      "※1": "需先完成特定主線或開啟對應區域坐騎加速條件（待補官方詳細說明）",
+      "※2": "需先完成特定支線或主線任務方可顯示於兌換列表（待補官方詳細說明）",
+      "※3": "需先完成特定支線或主線任務方可顯示於兌換列表（待補官方詳細說明）",
+      "※4": "需先完成特定支線或副本任務方可顯示於兌換列表（待補官方詳細說明）",
+      "※5": "需先完成特定支線或副本任務方可顯示於兌換列表（待補官方詳細說明）",
+      "※6": "需先完成《寄葉異聞：暗黑天啟》相關任務方可顯示（待補官方詳細說明）"
+    };
+
+    const CATEGORY_LABELS = {
+      m: "坐騎・飾品",
+      a: "外觀・動作・家具",
+      o: "幻卡・地圖・其他"
+    };
+
+    // ============================================================================
+    // 【3. 狀態管理與 localStorage 安全讀寫 (包裹 try/catch)】
+    // ============================================================================
+    const STORAGE_KEY = "ff14_mog_73_allegory_state_v1";
+
+    const state = {
+      counts: {},        // { [id]: number }
+      favorites: {},     // { [id]: boolean }
+      owned: 0,          // 目前持有神典石
+      activeTab: "all",  // 'all' | 'fav' | 'm' | 'a' | 'o'
+      viewMode: "grid",  // 'grid' | 'list'
+      onlySelected: false,
+      searchQuery: "",
+      theme: ""          // '' (跟隨系統) | 'light' | 'dark'
+    };
+
+    function loadState() {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          if (parsed.counts && typeof parsed.counts === "object") state.counts = parsed.counts;
+          if (parsed.favorites && typeof parsed.favorites === "object") state.favorites = parsed.favorites;
+          if (typeof parsed.owned === "number" && parsed.owned >= 0) state.owned = Math.floor(parsed.owned);
+          if (["all", "fav", "m", "a", "o"].includes(parsed.activeTab)) state.activeTab = parsed.activeTab;
+          if (["grid", "list"].includes(parsed.viewMode)) state.viewMode = parsed.viewMode;
+          if (typeof parsed.onlySelected === "boolean") state.onlySelected = parsed.onlySelected;
+          if (["", "light", "dark"].includes(parsed.theme)) state.theme = parsed.theme;
+        }
+      } catch (err) {
+        console.warn("無法讀取 localStorage，將使用預設狀態：", err);
+      }
+    }
+
+    function saveState() {
+      try {
+        const payload = {
+          counts: state.counts,
+          favorites: state.favorites,
+          owned: state.owned,
+          activeTab: state.activeTab,
+          viewMode: state.viewMode,
+          onlySelected: state.onlySelected,
+          theme: state.theme
+        };
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (err) {
+        console.warn("無法寫入 localStorage：", err);
+      }
+    }
+
+    // ============================================================================
+    // 【4. 每週二 16:00 (台灣時間 = 週二 08:00 UTC) 任務刷新倒數計時器】
+    // ============================================================================
+    function updateWeeklyCountdown() {
+      const now = new Date();
+      const nowMs = now.getTime();
+
+      // 以 UTC 時間計算下一個週二 (Day 2) 08:00:00 UTC
+      const utcDay = now.getUTCDay(); // 0=週日, 1=週一, 2=週二...
+      const utcHours = now.getUTCHours();
+
+      let daysUntilTuesday = (2 - utcDay + 7) % 7;
+      // 若今天就是週二，且已經過了 08:00 UTC (台灣 16:00)，則目標為下週二 (+7 天)
+      if (daysUntilTuesday === 0 && utcHours >= 8) {
+        daysUntilTuesday = 7;
+      }
+
+      const nextReset = new Date(Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + daysUntilTuesday,
+        8, 0, 0, 0
+      ));
+
+      const diffSec = Math.max(0, Math.floor((nextReset.getTime() - nowMs) / 1000));
+      const days = Math.floor(diffSec / 86400);
+      const hours = Math.floor((diffSec % 86400) / 3600);
+      const mins = Math.floor((diffSec % 3600) / 60);
+      const secs = diffSec % 60;
+
+      const pad = (n) => String(n).padStart(2, "0");
+      const countdownEl = document.getElementById("weekly-countdown");
+      if (countdownEl) {
+        countdownEl.textContent = `${days}天 ${pad(hours)}時 ${pad(mins)}分 ${pad(secs)}秒`;
+      }
+    }
+
+    // ============================================================================
+    // 【5. 統計計算與介面更新】
+    // ============================================================================
+    function updateSummaryAndCounts() {
+      let totalNeeded = 0;
+      let selectedTypes = 0;
+
+      const tabCounts = {
+        all: REWARDS_DATA.length,
+        fav: 0,
+        m: 0,
+        a: 0,
+        o: 0
+      };
+
+      for (const item of REWARDS_DATA) {
+        const qty = Math.max(0, parseInt(state.counts[item.id] || 0, 10));
+        if (qty > 0) {
+          totalNeeded += item.cost * qty;
+          selectedTypes += 1;
+        }
+        if (state.favorites[item.id]) {
+          tabCounts.fav += 1;
+        }
+        if (tabCounts[item.cat] !== undefined) {
+          tabCounts[item.cat] += 1;
+        }
+      }
+
+      // 更新頂部總需神典石
+      document.getElementById("total-needed").textContent = totalNeeded.toLocaleString();
+      document.getElementById("selected-types-count").textContent = `(已選 ${selectedTypes} 項)`;
+
+      // 更新還差 / 多出
+      const owned = Math.max(0, parseInt(state.owned || 0, 10));
+      const diff = totalNeeded - owned;
+      const diffBox = document.getElementById("diff-box");
+      const diffLabel = document.getElementById("diff-label");
+      const diffValue = document.getElementById("diff-value");
+
+      if (diff >= 0) {
+        diffBox.classList.add("is-short");
+        diffBox.classList.remove("is-surplus");
+        diffLabel.textContent = diff === 0 ? "✨ 剛好達標" : "🔥 還差神典石";
+        diffValue.textContent = diff.toLocaleString();
+      } else {
+        diffBox.classList.remove("is-short");
+        diffBox.classList.add("is-surplus");
+        diffLabel.textContent = "🎉 多出神典石";
+        diffValue.textContent = Math.abs(diff).toLocaleString();
+      }
+
+      // 更新各分頁數量徽章
+      document.getElementById("count-all").textContent = tabCounts.all;
+      document.getElementById("count-fav").textContent = tabCounts.fav;
+      document.getElementById("count-m").textContent = tabCounts.m;
+      document.getElementById("count-a").textContent = tabCounts.a;
+      document.getElementById("count-o").textContent = tabCounts.o;
+    }
+
+    // 同步控制列按鈕與分頁狀態
+    function syncControlsUI() {
+      // 分頁按鈕
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        const isActive = btn.dataset.tab === state.activeTab;
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+
+      // 只看已選按鈕
+      const onlySelBtn = document.getElementById("only-selected-btn");
+      onlySelBtn.classList.toggle("active-filter", state.onlySelected);
+      onlySelBtn.setAttribute("aria-pressed", state.onlySelected ? "true" : "false");
+
+      // 顯示模式按鈕與容器 class
+      const listContainer = document.getElementById("rewards-list");
+      const viewIcon = document.getElementById("view-mode-icon");
+      const viewText = document.getElementById("view-mode-text");
+
+      if (state.viewMode === "list") {
+        listContainer.classList.remove("grid-mode");
+        listContainer.classList.add("list-mode");
+        viewIcon.textContent = "🎴";
+        viewText.textContent = "切換卡片網格";
+      } else {
+        listContainer.classList.remove("list-mode");
+        listContainer.classList.add("grid-mode");
+        viewIcon.textContent = "📋";
+        viewText.textContent = "切換精簡列表";
+      }
+
+      // 主題套用
+      if (state.theme === "dark" || state.theme === "light") {
+        document.documentElement.setAttribute("data-theme", state.theme);
+      } else {
+        document.documentElement.removeAttribute("data-theme");
+      }
+    }
+
+    // ============================================================================
+    // 【6. 渲染道具卡片列表】
+    // ============================================================================
+    function renderRewardsList() {
+      const container = document.getElementById("rewards-list");
+      const query = state.searchQuery.trim().toLowerCase();
+
+      const filtered = REWARDS_DATA.filter((item) => {
+        const qty = state.counts[item.id] || 0;
+        const isFav = !!state.favorites[item.id];
+
+        // 分頁篩選
+        if (state.activeTab === "fav" && !isFav) return false;
+        if (["m", "a", "o"].includes(state.activeTab) && item.cat !== state.activeTab) return false;
+
+        // 只看已選篩選
+        if (state.onlySelected && qty < 1) return false;
+
+        // 關鍵字搜尋
+        if (query) {
+          const matchName = item.name.toLowerCase().includes(query);
+          const matchNote = (item.note || "").toLowerCase().includes(query);
+          if (!matchName && !matchNote) return false;
+        }
+        return true;
+      });
+
+      container.innerHTML = "";
+
+      if (filtered.length === 0) {
+        const emptyDiv = document.createElement("div");
+        emptyDiv.className = "empty-state";
+        emptyDiv.innerHTML = `
+          <div style="font-size:2rem;">📭</div>
+          <p>目前篩選條件下沒有符合的道具，試著切換分頁或清除搜尋條件吧庫啵！</p>
+        `;
+        container.appendChild(emptyDiv);
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+
+      filtered.forEach((item) => {
+        const qty = Math.max(0, parseInt(state.counts[item.id] || 0, 10));
+        const isSelected = qty >= 1;
+        const isFav = !!state.favorites[item.id];
+        const subtotal = item.cost * qty;
+        const firstChar = item.name.replace(/^【.*?】/, "").trim().charAt(0) || "★";
+        const noteTip = item.note && NOTES_MAP[item.note] ? NOTES_MAP[item.note] : item.note;
+
+        const card = document.createElement("article");
+        card.className = `item-card${isSelected ? " is-selected" : ""}`;
+        card.dataset.id = item.id;
+
+        // 建立預留圖示 HTML（若 item.img 有路徑則顯示圖片，載入失敗或空字串顯示首字色塊）
+        const thumbContent = item.img
+          ? `<img src="${escapeHtml(item.img)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.remove();this.parentElement.textContent='${escapeHtml(firstChar)}';">`
+          : escapeHtml(firstChar);
+
+        const noteBadgeHtml = item.note
+          ? `<span class="note-badge" title="${escapeHtml(noteTip)}">${escapeHtml(item.note)}</span>`
+          : "";
+
+        card.innerHTML = `
+          <span class="selected-ribbon">✓ 已選</span>
+          <div class="card-main" data-action="toggle-select" tabindex="0" role="button" aria-label="快速切換選擇 ${escapeHtml(item.name)}">
+            <div class="item-thumb" data-cat="${escapeHtml(item.cat)}">${thumbContent}</div>
+            <div class="item-info">
+              <div class="item-meta-row">
+                <span class="cost-badge" title="需要 ${item.cost} 顆稀少神典石">💎 ${item.cost}</span>
+                <span class="cat-tag">${escapeHtml(CATEGORY_LABELS[item.cat] || "其他")}</span>
+                ${noteBadgeHtml}
+              </div>
+              <h3 class="item-name">${escapeHtml(item.name)}</h3>
+            </div>
+            <button
+              type="button"
+              class="fav-btn${isFav ? " is-fav" : ""}"
+              data-action="toggle-fav"
+              aria-label="${isFav ? "取消最愛追蹤" : "加入最愛追蹤"}：${escapeHtml(item.name)}"
+              aria-pressed="${isFav ? "true" : "false"}"
+              title="最愛追蹤"
+            >${isFav ? "★" : "☆"}</button>
+          </div>
+
+          <div class="card-footer">
+            <span class="subtotal-text">
+              ${isSelected ? `小計：${subtotal.toLocaleString()} 神典石` : `未選擇`}
+            </span>
+            <div class="qty-controls">
+              <button
+                type="button"
+                class="qty-btn"
+                data-action="dec-qty"
+                aria-label="減少 ${escapeHtml(item.name)} 數量"
+                ${qty <= 0 ? "disabled" : ""}
+              >－</button>
+              <span class="qty-display" aria-label="目前選擇數量">${qty}</span>
+              <button
+                type="button"
+                class="qty-btn"
+                data-action="inc-qty"
+                aria-label="增加 ${escapeHtml(item.name)} 數量"
+              >＋</button>
+            </div>
+          </div>
+        `;
+
+        fragment.appendChild(card);
+      });
+
+      container.appendChild(fragment);
+    }
+
+    // 渲染底部 ※1～※6 註記說明列表
+    function renderNotesList() {
+      const ul = document.getElementById("notes-list");
+      if (!ul) return;
+      ul.innerHTML = Object.entries(NOTES_MAP)
+        .map(([code, desc]) => `<li><strong>${escapeHtml(code)}</strong>${escapeHtml(desc)}</li>`)
+        .join("");
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    // ============================================================================
+    // 【7. 互動事件綁定】
+    // ============================================================================
+    function setItemQty(id, newQty) {
+      const clamped = Math.max(0, Math.min(999, newQty));
+      if (clamped === 0) {
+        delete state.counts[id];
+      } else {
+        state.counts[id] = clamped;
+      }
+      saveState();
+      updateSummaryAndCounts();
+      renderRewardsList();
+    }
+
+    function toggleItemFav(id) {
+      if (state.favorites[id]) {
+        delete state.favorites[id];
+      } else {
+        state.favorites[id] = true;
+      }
+      saveState();
+      updateSummaryAndCounts();
+      renderRewardsList();
+    }
+
+    function initEvents() {
+      // 1. 道具卡片委派點擊與鍵盤事件
+      const rewardsListEl = document.getElementById("rewards-list");
+
+      rewardsListEl.addEventListener("click", (e) => {
+        const card = e.target.closest(".item-card");
+        if (!card) return;
+        const id = card.dataset.id;
+        const currentQty = state.counts[id] || 0;
+
+        // 點擊最愛按鈕
+        if (e.target.closest('[data-action="toggle-fav"]')) {
+          e.stopPropagation();
+          toggleItemFav(id);
+          return;
+        }
+
+        // 點擊 ＋ 按鈕
+        if (e.target.closest('[data-action="inc-qty"]')) {
+          e.stopPropagation();
+          setItemQty(id, currentQty + 1);
+          return;
+        }
+
+        // 點擊 － 按鈕
+        if (e.target.closest('[data-action="dec-qty"]')) {
+          e.stopPropagation();
+          setItemQty(id, currentQty - 1);
+          return;
+        }
+
+        // 點擊卡片上半部主體：快速切換 0 ⇄ 1
+        if (e.target.closest('[data-action="toggle-select"]')) {
+          setItemQty(id, currentQty > 0 ? 0 : 1);
+        }
+      });
+
+      // 支援鍵盤 Enter / Space 操作卡片主體
+      rewardsListEl.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        const toggleArea = e.target.closest('[data-action="toggle-select"]');
+        if (toggleArea && e.target === toggleArea) {
+          e.preventDefault();
+          const card = toggleArea.closest(".item-card");
+          if (!card) return;
+          const id = card.dataset.id;
+          const currentQty = state.counts[id] || 0;
+          setItemQty(id, currentQty > 0 ? 0 : 1);
+        }
+      });
+
+      // 2. 目前持有神典石輸入框
+      const ownedInput = document.getElementById("owned-input");
+      ownedInput.value = state.owned;
+      ownedInput.addEventListener("input", () => {
+        const val = parseInt(ownedInput.value, 10);
+        state.owned = Number.isNaN(val) || val < 0 ? 0 : Math.min(99999, val);
+        saveState();
+        updateSummaryAndCounts();
+      });
+
+      // 3. 分頁篩選切換
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.activeTab = btn.dataset.tab;
+          saveState();
+          syncControlsUI();
+          renderRewardsList();
+        });
+      });
+
+      // 4. 搜尋框
+      const searchInput = document.getElementById("search-input");
+      searchInput.addEventListener("input", () => {
+        state.searchQuery = searchInput.value;
+        renderRewardsList();
+      });
+
+      // 5. 只看已選按鈕
+      document.getElementById("only-selected-btn").addEventListener("click", () => {
+        state.onlySelected = !state.onlySelected;
+        saveState();
+        syncControlsUI();
+        renderRewardsList();
+      });
+
+      // 6. 切換顯示模式按鈕 (卡片網格 ⇄ 精簡列表)
+      document.getElementById("view-mode-btn").addEventListener("click", () => {
+        state.viewMode = state.viewMode === "grid" ? "list" : "grid";
+        saveState();
+        syncControlsUI();
+      });
+
+      // 7. 深淺色模式切換按鈕
+      document.getElementById("theme-toggle-btn").addEventListener("click", () => {
+        const isDarkNow =
+          state.theme === "dark" ||
+          (!state.theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        state.theme = isDarkNow ? "light" : "dark";
+        saveState();
+        syncControlsUI();
+      });
+
+      // 8. 重置數量按鈕與確認對話框
+      const modal = document.getElementById("confirm-modal");
+      const openModal = () => {
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+        document.getElementById("modal-confirm-btn").focus();
+      };
+      const closeModal = () => {
+        modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
+      };
+
+      document.getElementById("reset-qty-btn").addEventListener("click", openModal);
+      document.getElementById("modal-cancel-btn").addEventListener("click", closeModal);
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.classList.contains("is-open")) {
+          closeModal();
+        }
+      });
+
+      document.getElementById("modal-confirm-btn").addEventListener("click", () => {
+        // 只把數量歸零，最愛追蹤與持有數保留
+        state.counts = {};
+        saveState();
+        updateSummaryAndCounts();
+        renderRewardsList();
+        closeModal();
+      });
+    }
+
+    // ============================================================================
+    // 【8. 啟動應用程式】
+    // ============================================================================
+    function initApp() {
+      loadState();
+      syncControlsUI();
+      renderNotesList();
+      updateSummaryAndCounts();
+      renderRewardsList();
+      initEvents();
+
+      // 啟動每週二 16:00 台灣時間倒數計時
+      updateWeeklyCountdown();
+      setInterval(updateWeeklyCountdown, 1000);
+    }
+
+    initApp();
+  </script>
+</body>
+</html>
